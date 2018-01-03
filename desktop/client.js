@@ -1,25 +1,37 @@
 var http = require('http'),
     querystring = require('querystring')
+    io = require('socket.io-client'),
+    ks = require('node-key-sender'),
+    responseToAlexa = ""
 
-var postData = querystring.stringify({
-    msg: "hello world",
-    home: "Vistuk"
+socket = io('https://195d3fa9.ngrok.io')
+socket.on('connect', () => {
+    console.log('is connected')
 })
-var post_option = {
-    host: 'localhost',
-    port: '7777',
-    path: '/',
-    method: 'POST'
+socket.on('event', (data) => {})
+socket.on('disconnect', () => {})
+
+setInterval(() => {
+    socket.emit('task', 'bordac6', (res) => {
+        //console.log(`Recieve:\n${res}`)
+        if(res != ""){
+            
+            var jsonData = JSON.parse(res);
+            if(jsonData.request.type == "IntentRequest"){
+                if(jsonData.request.intent.name == "NextSlideIntent"){
+                    ks.sendKey(['right'])
+                    response("should be here some JSON data")
+                }
+                else{
+                    response("Intent does not exist.")
+                }
+            }
+        }
+    })
+}, 3000)
+
+function response(msg){
+    socket.emit('alexaRes', msg, (res) => {
+        console.log('Recieved from server: '+res)
+    })
 }
-var req = http.request(post_option, (res) => {
-    res.setEncoding('utf8')
-    res.on('data', (data) => {
-        console.log('Respose: ' + data)
-    })
-    res.on('end', () => {
-        console.log('No more data in response.')
-    })
-})
-
-req.write(postData)
-req.end()

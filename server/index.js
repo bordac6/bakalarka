@@ -1,40 +1,107 @@
-const express = require('express'),
- app = express(),
- port = 7777,
- server = require('http').createServer(app)
+var express = require('express'),
+    app = express(),
+    server = require('http').createServer(app),
+    port = process.env.PORT || 3000,
+    alexaReq = "",
+    alexaRes = {},
+    io = require('socket.io').listen(server)
 
-app.post('/', (req, res) => {
-    console.log("received echo request")
-    var requestBody = ""
+// Creates the website server on the port #
+server.listen(port, function () {
+  console.log('Server listening at port %d', port);
+});
 
-    req.on('data', (data) => {
-        requestBody = data+".jpg"
-    })
+// Handles the route for echo apis
+app.post('/api/echo', function(req, res){
+  console.log("received echo request");
+  var requestBody = "";
 
-    req.on('end', () => {
-        var responseBody = {requestBody}
-        console.log(requestBody)
-        console.log(JSON.stringify(requestBody))
+  // Will accumulate the data
+  req.on('data', function(data){
+    requestBody+=data;
+  });
 
-        res.statusCode = 200
-        res.contentType('application/json')
-        res.send(responseBody)
-    })
-})
+  // Called when all data has been accumulated
+  req.on('end', function(){
 
-app.get('/', (request, response) => {
-    response.send('Hello from Express! ')
-})
+    //send data to client
+    alexaReq = requestBody
+    
+    var jsonData = JSON.parse(alexaReq)
 
-app.listen(port, (err) => {
-    if(err)
-        return console.log('something bad happend', err)
-    console.log(`server is listening on ${port}`)
-}).once('error', (err) => {
-    if (err.code == 'EADDRINUSE') {
-        console.log(`port ${port} is alredy taken`)
-        // app.close(() => {
-        //     process.exit(0)
-        // })
+    if(jsonData.request.type == "LaunchRequest")
+    {
+      // crafting a response
+      responseBody = {
+        "version": "0.1",
+        "response": {
+          "outputSpeech": {
+            "type": "PlainText",
+            "text": "Welcome to Echo Sample! Please say a command"
+          },
+          "card": {
+            "type": "Simple",
+            "title": "Opened",
+            "content": "You started the Node.js Echo API Sample"
+          },
+          "reprompt": {
+            "outputSpeech": {
+              "type": "PlainText",
+              "text": "Say a command"
+            }
+          },
+          "shouldEndSession": false
+        }
+      };
     }
+    else{
+        responseBody = {
+            "version": "0.1",
+            "response": {
+              "outputSpeech": {
+                "type": "PlainText",
+                "text": "Could not parse data"
+              },
+              "card": {
+                "type": "Simple",
+                "title": "Error Parsing",
+                "content": JSON.stringify(requestBody)
+              },
+              "reprompt": {
+                "outputSpeech": {
+                  "type": "PlainText",
+                  "text": "Say a command"
+                }
+              },
+              "shouldEndSession": false
+            }
+        }
+    }
+    
+    res.statusCode = 200;
+    res.contentType('application/json');
+    res.send(responseBody);
+
+  })
 })
+
+//socket.io
+io.on('connect', (socket) => {
+    console.log('New client on socket is connected.')
+    
+    socket.on('disconnect', () => {
+        console.log('Client disconnected.')
+    })
+
+    socket.on('task', (msg, req) => {
+        if(alexaReq != "") 
+            req(alexaReq)
+        alexaReq = ""
+    })
+
+    socket.on('alexaRes', (req, res) => {
+        alexaRes = req
+        res("OK")
+    })
+})
+//
