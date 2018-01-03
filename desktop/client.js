@@ -6,6 +6,7 @@ var http = require('http'),
     ks = require('node-key-sender'),
     finder = require('fs-finder'),
     exec = require('child_process').exec,
+    os = process.platform,
     responseToAlexa = ""
     
 socket = io('https://195d3fa9.ngrok.io')
@@ -31,13 +32,23 @@ setInterval(() => {
                     console.log(presentationName)
                     var file = finder.from('').findFirst().findFiles(presentationName)
                     console.log(file)
-                    var yourscript = exec(file, (error, stdout, stderr) => {
-                        ks.sendKey('f5')
-                        if(error !== null){
-                            console.log(`exec error: ${error}`)
-                        }
-                    })
-                }
+		    if(file !== null){
+		   	 if(os == 'linux'){
+  				exec('xdg-open ' + file, (err, out, code) => {
+			    	    ks.sendKey('f5')
+			    	    if(err) throw err
+			  	})
+		    	  }
+		    	  else if(os == 'win32'){ 
+                              exec(file, (error, stdout, stderr) => {
+                                  ks.sendKey('f5')
+                                  if(error !== null){
+                                      console.log(`exec error: ${error}`)
+                                  }
+                              })
+		    	  }
+                    }        
+		}
                 else if(jsonData.request.intent.name == "StartPresentationIntent"){
                     ks.sendKey('f5')
                 }
