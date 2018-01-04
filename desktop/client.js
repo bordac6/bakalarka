@@ -9,7 +9,7 @@ var http = require('http'),
     os = process.platform,
     responseToAlexa = ""
     
-socket = io('https://195d3fa9.ngrok.io')
+socket = io('https://6c2b2e28.ngrok.io')
 socket.on('connect', () => {
     console.log('is connected')
 })
