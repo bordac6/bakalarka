@@ -60,7 +60,7 @@ app.post('/api/echo', function(req, res){
             "response": {
               "outputSpeech": {
                 "type": "PlainText",
-                "text": "Could not parse data"
+                "text": "Command sent to client."
               },
               "card": {
                 "type": "Simple",
