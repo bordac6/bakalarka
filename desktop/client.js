@@ -9,7 +9,7 @@ var http = require('http'),
     os = process.platform,
     responseToAlexa = ""
     
-socket = io('https://6c2b2e28.ngrok.io')
+socket = io('https://2992d795.ngrok.io')
 socket.on('connect', () => {
     console.log('is connected')
 })
@@ -65,34 +65,3 @@ function response(msg){
         console.log('Recieved from server: '+res)
     })
 }
-
-/*
-ks.sendCombination(['control', 'alt', 'delete'])
-setInterval(()=>{
-    ks.sendKey(['f5'])
-    ks.sendKey(['right'])
-}, 5000)
-*/
-//HTTP POST request
-/*
-var postData = querystring.stringify({
-    msg: "give me JSON from Alexa!!\n"
-})
-var post_option = {
-    host: 'e69818e1.ngrok.io',
-    path: '/bordac6',
-    method: 'POST'
-}
-var req = http.request(post_option, (res) => {
-    res.setEncoding('utf8')
-    res.on('data', (data) => {
-        console.log('Respose: ' + data)
-    })
-    res.on('end', () => {
-        console.log('No more data in response.')
-    })
-})
-
-req.write(postData)
-req.end()
-*/
