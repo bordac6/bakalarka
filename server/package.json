@@ -10,9 +10,15 @@
   "author": "bordac6",
   "license": "ISC",
   "dependencies": {
+    "child_process": "^1.0.2",
     "ejs": "^2.5.7",
     "express": "^4.16.2",
+    "fs-finder": "^1.8.1",
     "http": "0.0.0",
-    "querystring": "^0.2.0"
+    "keycode": "^2.1.9",
+    "node-key-sender": "^1.0.9",
+    "querystring": "^0.2.0",
+    "socket.io": "^2.0.4",
+    "socket.io-client": "^2.0.4"
   }
 }
