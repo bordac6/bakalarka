@@ -16,6 +16,7 @@
     "fs-finder": "^1.8.1",
     "http": "0.0.0",
     "keycode": "^2.1.9",
+    "moment": "^2.11.2",
     "mongodb": "^2.2.33",
     "nano": "^6.4.3",
     "node-key-sender": "^1.0.9",
