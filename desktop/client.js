@@ -1,18 +1,20 @@
 //import { spawn } from 'child_process';
 
-var http = require('http')
 var querystring = require('querystring')
 var io = require('socket.io-client')
 var ks = require('node-key-sender')
 var finder = require('fs-finder')
 var exec = require('child_process').exec
 var os = process.platform
-var responseToAlexa = ""
-    
-socket = io('https://65fd70f2.ngrok.io')
-socket.on('connect', () => {
+ 
+socket = io('https://3091138a.ngrok.io')
+socket.on('connect', (err) => {
+    if(err)
+      console.log(err)
     console.log('is connected')
-    socket.emit('room', 'test', 'name', 'passwd', (msg) => {
+    var name = 'test'
+    var passwd = 'passwd'
+    socket.emit('room', 'test', name, passwd, (msg) => {
         console.log('is connected? -', msg)
     })
 })
@@ -25,11 +27,11 @@ socket.on('message', (requestBody) => {
     craftResponse(type, jsonData)
     if(type === "IntentRequest")
         executeCommand(jsonData)
-    
-   
 })
-socket.on('event', (data) => {})
-socket.on('disconnect', () => {})
+//socket.on('event', (data) => {})
+socket.on('disconnect', (err) => {
+  console.log('client was disconnected!', err)
+})
 
 function response(msg){
     socket.emit('alexaRes', msg, (res) => {
