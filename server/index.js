@@ -4,26 +4,23 @@ var app = express()
 var server = require('http').createServer(app)
 var io = require('socket.io').listen(server)
 var port = process.env.PORT || 3000
-var alexaRes = ''
+var alexaRes = {}
 var responseToAlexa = {}
 var clients = []
 
-//comunicate with database
-    //add new client
-    // var obj = {
-    //   id : "0",
-    //   name : "test",
-    //   password : "passwd",
-    //   socketID : "aaZZ"
-    // }
-    // collection.insertOne(obj, (err, res) => {
-    //   if(err) 
-    //     console.log('Unable insert client')
-    //   else {
-    //     console.log("client inserted")
-    //     db.close()
-    //   }
-    // })
+class User{
+  constructor(amazonId = '', socketId = '', socket = ''){
+    this._aid = amazonId
+    this._sid = socketId
+    this._socket = socket
+  }
+  get aid(){
+    return this._aid
+  }
+  get sid(){
+    return this._sid
+  }
+}
 
 var mongo = require('./mongoUtil')
 mongo.connectToServer(err => {
@@ -49,14 +46,45 @@ app.post('/api/echo', function(req, res){
   req.on('end', function(){
 
     //send data to client
-    io.to(clients[0]).emit('message', requestBody)
+    let jsonBody = JSON.parse(requestBody)
+    let aid = jsonBody.session.user.userId
+    let usr = getUserByAmazonId(aid)
+    if(usr !== null)
+      io.to(usr._sid).emit('message', requestBody)
     //wait for response from client and send to Alexa
-    setTimeout(() => {
-      console.log("ALEXA RESPONSE 31: ", alexaRes)
-      res.statusCode = 200;
-      res.contentType('application/json');
-      res.send(alexaRes);
-      alexaRes = '';
+    setTimeout(() => {      
+      if(alexaRes[aid]){
+        res.statusCode = 200;
+        res.contentType('application/json');
+        res.send(alexaRes[aid]);
+        delete alexaRes[aid]
+      }
+      else {
+        responseBody = {
+          "version": "0.1",
+          "response": {
+            "outputSpeech": {
+              "type": "PlainText",
+              "text": "Client is Unreachable"
+            },
+            "card": {
+              "type": "Simple",
+              "title": "DoCommand",
+              "content": "Can't connect to client."
+            },
+            "reprompt": {
+              "outputSpeech": {
+                "type": "PlainText",
+                "text": "Say a command"
+              }
+            },
+            "shouldEndSession": false
+          }
+        };
+        res.statusCode = 200;
+        res.contentType('application/json');
+        res.send(responseBody);
+      }
     }, 500)    
   })
 })
@@ -66,23 +94,25 @@ io.on('connect', (socket) => {
     console.log('New client on socket is connected.')
 /**
  * room: nazov kanala pre komunikaciu s klientmi;
- * LoginName: prihlasovacie meno;
- * passwd: prihlasovacie heslo zasifrovane;
+ * amazonId: amazon ID;
+ * passwd: prihlasovacie heslo - aktualne sa nepouziva;
  * callback: funkcia s jednym parametrom string pre spravu klientovi
  */
-    socket.on('room', (room, LoginName, passwd, callback) => { 
-      console.log(LoginName, ' ', passwd)
+    socket.on('room', (room, amazonId, passwd, callback) => { 
       //loggin check
-      db.collection('clients_table').findOne({name: LoginName}, (err, result) => {
+      db.collection('clients_table').findOne({name: amazonId}, (err, result) => {
         if(err)
           console.log(err)
         else{
-          console.log(result.name, ' ', result.password)
-          if(LoginName === result.name && passwd === result.password){
-            //ak je pouzivatel ma jeden socket, ten treba vyhodit a miesto neho dat novy
-            var user = {
-              "name" : LoginName,
-              "socketID" : socket.id
+          if(amazonId === result.name && passwd === result.password){
+
+            if(isConnectedUser(amazonId)){
+              user = getUserByAmazonId(amazonId)
+              user._socket.disconnect()
+              user._sid = socket.id
+            }
+            else{
+              user = new User(amazonId, socket.id, socket)
             }
             socket.join(room)
             clients.push(user)
@@ -97,17 +127,47 @@ io.on('connect', (socket) => {
       })
     })
     socket.on('disconnect', () => {
-        var index = clients.indexOf(socket.id)
+        var usr = getUserBySocketId(socket.id)
+        var index = clients.indexOf(usr)
         if(index > -1) clients.splice(index, 1)
         console.log('Client disconnected.')
         console.log(clients)
     })
     socket.on('alexaRes', (req, res) => {
       //check req is acceptable
-        alexaRes = req
-        console.log("ALEXA RESPONSE 65: ", alexaRes)
-        res("OK")
+        let usr = getUserBySocketId(socket.id)
+        if(usr != null){
+          alexaRes[usr._aid] = req
+          res("OK")
+        }
+        else{
+          res("NO")
+        }
     })
 })
 
+function getUserBySocketId(socketId){
+  for(user of clients){
+    if(user._sid === socketId){
+      return user
+    }
+  }
+  return null
+}
+function getUserByAmazonId(amazonId){
+  for(user of clients){
+    if(user._aid === amazonId){
+      return user
+    }
+  }
+  return null
+}
+function isConnectedUser(amazonId){
+  for(user of clients){
+    if(user._aid === amazonId){
+      return true
+    }
+  }
+  return false
+}
 })//end of db connection
