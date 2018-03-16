@@ -1,0 +1,13 @@
+{
+    "server": {
+      "protocol": "https",
+      "host": "92d36cb9.ngrok.io"
+    },
+    "amazon": {
+      "key": "amzn1.application-oa2-client.c05458af025943b3920d694ecfc2c194",
+      "secret": "a50028e18f3aa50ae5333327a350965e4b8d87e4b96a0752a598dbd2118fa5ac",
+      "callback": "/handle_amazon_callback",
+      "scope": "profile"
+    }
+  
+  }

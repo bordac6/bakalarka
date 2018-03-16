@@ -7,26 +7,35 @@ var finder = require('fs-finder')
 var exec = require('child_process').exec
 var os = process.platform
  
-socket = io('https://3091138a.ngrok.io')
+socket = io('https://92d36cb9.ngrok.io')
 socket.on('connect', (err) => {
     if(err)
-      console.log(err)
-    console.log('is connected')
-    var name = 'test'
-    var passwd = 'passwd'
-    socket.emit('room', 'test', name, passwd, (msg) => {
-        console.log('is connected? -', msg)
-    })
+        console.log(err)
+    else{
+        console.log('is connected')
+        
+        var opn = require('opn')
+        opn('https://92d36cb9.ngrok.io/connect/amazon') //open login page
+
+        var name = 'bordac6@uniba.sk' //get name from file or some input from client
+        socket.emit('room', 'client', name, (msg) => {
+            console.log('Message from server: ', msg)
+        })
+    }
 })
 socket.on('message', (requestBody) => {
     //console.log('Incoming message:', requestBody)
 
     var jsonData = JSON.parse(requestBody)
     var type = jsonData.request.type
+    //var command = require(b)
 
     craftResponse(type, jsonData)
-    if(type === "IntentRequest")
+    if(type === "IntentRequest"){
+        var intentName = jsonData.request.intent.name
+        console.log('execute command: ', intentName)
         executeCommand(jsonData)
+    }
 })
 //socket.on('event', (data) => {})
 socket.on('disconnect', (err) => {
@@ -124,13 +133,11 @@ function executeCommand(jsonData){
             if(file !== null){
                 if(os == 'linux'){
                     exec('xdg-open ' + file, (err, out, code) => {
-                        ks.sendKey('f5')
                         if(err) throw err
                     })
                 }
                 else if(os == 'win32'){ 
                     exec(file, (error, stdout, stderr) => {
-                        ks.sendKey('f5')
                         if(error !== null){
                             console.log(`exec error: ${error}`)
                         }
