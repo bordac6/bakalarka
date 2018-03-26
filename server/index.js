@@ -171,7 +171,14 @@ app.use(session({
    });
    response.on('end', function () {
     addUser(str)
-    console.log('Users after added one: ', clients)
+    var au = JSON.parse(str)
+    usr = getUserByAmazonId(au['user_id'])
+    if(usr !== null){
+      //send request from alexa to user`s socket
+      console.log('send user data to client')
+      io.to(usr._sid).emit('login', str)
+    }
+    //console.log('Users after added one: ', clients)
     req.session.userid=JSON.parse(str).user_id;
     res.writeHead(302, {'Location': '/userdevices'});
      res.end();
@@ -187,42 +194,48 @@ io.on('connect', (socket) => {
  * email : loggin email to amazon
  * callback: function with one string for message to clien
  */
-    socket.on('room', (room, email, callback) => { 
+    socket.on('room', (room, usr, callback) => { 
       //loggin check
-         if(isLoggedIn(email)){
-            if(isConnectedUser(email)){ //connection second time
-              user = getUserByEmail(email)
-              user._socket.disconnect()
-              user._sid = socket.id
-              user._socket = socket
-            }
-            else{ //regular connection (first device)
-              user = getUserByEmail(email)
-              user.addSocketId(socket.id)
-              user.addSocket(socket)
-            }
-            socket.join(room)
-            clients.push(user)
-            callback('yes')
+      au = JSON.parse(usr)
+      email = au['email']
+      aid = au['user_id']
+      if(isLoggedIn(email)){
+        user = getUserByEmail(email)
+        if(isConnectedUser(email)){ //connection second time
+          user._socket.disconnect()
+        }
+        user.addSocketId(socket.id)
+        user.addSocket(socket)
+        if(aid !== null){
+          user.addAmazonId(aid)
+        }
+        socket.join(room)
+        clients.push(user)
+        callback('yes')
+      }
+      else{
+        user = getUserByEmail(email)
+        if(user === null){ //shoul`d be here in first time
+          var msg = 'Wait for amazon loggin.'
+          user = new User()
+          user.addEmail(email)
+          if(aid !== null){
+            user.addAmazonId(aid)
+            msg = 'Succesfully logged in.'
           }
-          else{
-            user = getUserByEmail(email)
-            if(user === null){ //shoul`d be here in first time
-              user = new User()
-              user.addEmail(email)
-              user.addSocket(socket)
-              user.addSocketId(socket.id)
+          user.addSocket(socket)
+          user.addSocketId(socket.id)
 
-              socket.join(room)
-              clients.push(user)
-              callback('Wait for amazon loggin.')
-            }
-            else{ 
-              callback('Not yet logged with amazon.')
-              socket.disconnect()
-            }
-          }
-        })
+          socket.join(room)
+          clients.push(user)
+          callback(msg)
+        }
+        else{ 
+          callback('Not yet logged with amazon.')
+          socket.disconnect()
+        }
+      }
+    })
 
     socket.on('disconnect', () => {
         var usr = getUserBySocketId(socket.id)
@@ -253,6 +266,8 @@ function getUserBySocketId(socketId){
   return null
 }
 function getUserByAmazonId(amazonId){
+  if(amazonId === null)
+    return null
   for(user of clients){
     if(user._aid === amazonId){
       return user
@@ -261,6 +276,8 @@ function getUserByAmazonId(amazonId){
   return null
 }
 function getUserByEmail(email){
+  if(email === null)
+    return null
   for(user of clients){
     if(user._email === email){
       return user
@@ -269,6 +286,8 @@ function getUserByEmail(email){
   return null
 }
 function isConnectedUser(email){
+  if(email === null)
+    return false
   for(user of clients){
     if(user._email === email && user._aid !== null && user._sid !== null){
       return true
@@ -277,6 +296,8 @@ function isConnectedUser(email){
   return false
 }
 function isLoggedIn(email){
+  if(email === null)
+    throw false
   for(user of clients){
     if(user._email === email && user._aid !== null){
       return true

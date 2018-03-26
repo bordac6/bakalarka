@@ -6,23 +6,69 @@ var ks = require('node-key-sender')
 var finder = require('fs-finder')
 var exec = require('child_process').exec
 var os = process.platform
- 
-socket = io('https://92d36cb9.ngrok.io')
+let configName = 'config.json'
+let user = {}
+const afs = require('await-fs')
+const fs = require('fs')
+const serverURL = 'https://20789831.ngrok.io'
+
+class Command{
+    /**
+     * 
+     * @param {name of execution file} command 
+     */
+    constructor(command){
+        this._command = require('./modules/'+command+'.js')
+    }
+    execute(){
+        this._command.execute()
+    }
+}
+
+(async function(){
+
+   try{
+       //saved login
+       config = await afs.readFile(configName, 'utf8')
+       console.log('saved: ', JSON.parse(config).email)
+   }
+   catch(err){
+       //first start
+       const promptly = require('promptly')
+       const email = await promptly.prompt('Amazon email: ');
+       console.log('creating file with email: ', email);
+       config = {
+           "email": email
+       }
+       fs.writeFile(configName, JSON.stringify(config), 'utf8', (err) =>{
+           if(err) throw err;
+           console.log('The file has been saved!')
+       })
+   }
+
+socket = io(serverURL)
 socket.on('connect', (err) => {
+    user = JSON.parse(config)
+    console.log('Meno: ', user['email']);
     if(err)
         console.log(err)
     else{
         console.log('is connected')
-        
-        var opn = require('opn')
-        opn('https://92d36cb9.ngrok.io/connect/amazon') //open login page
-
-        var name = 'bordac6@uniba.sk' //get name from file or some input from client
-        socket.emit('room', 'client', name, (msg) => {
-            console.log('Message from server: ', msg)
-        })
+        if(user['email'] !== undefined){
+            if(user['user_id'] === undefined){ //user_id is not yet saved
+                var opn = require('opn')
+                opn(serverURL+'/connect/amazon') //open login page
+            }
+            socket.emit('room', 'client', JSON.stringify(user), (msg) => {
+                console.log('Message from server: ', msg)
+            })
+        }
+        else {
+            console.log('Bad file format. Email is not set.')
+        }
     }
 })
+
 socket.on('message', (requestBody) => {
     //console.log('Incoming message:', requestBody)
 
@@ -33,14 +79,24 @@ socket.on('message', (requestBody) => {
     craftResponse(type, jsonData)
     if(type === "IntentRequest"){
         var intentName = jsonData.request.intent.name
-        console.log('execute command: ', intentName)
-        executeCommand(jsonData)
+        command = new Command(intentName)
+        command.execute()
+        //executeCommand(jsonData)
     }
+})
+socket.on('login', (amazonUser) => {
+    var au = JSON.parse(amazonUser)
+    var mail = au['email']
+    var user_id = au['user_id']
+    if(mail !== undefined && user_id !== undefined)
+        fs.writeFile(configName, amazonUser)
+
 })
 //socket.on('event', (data) => {})
 socket.on('disconnect', (err) => {
   console.log('client was disconnected!', err)
 })
+})()
 
 function response(msg){
     socket.emit('alexaRes', msg, (res) => {
