@@ -1,27 +1,26 @@
 //import { spawn } from 'child_process';
 
-var querystring = require('querystring')
-var io = require('socket.io-client')
-var ks = require('node-key-sender')
-var finder = require('fs-finder')
-var exec = require('child_process').exec
-var os = process.platform
-let configName = 'config.json'
-let user = {}
-const afs = require('await-fs')
-const fs = require('fs')
-const serverURL = 'https://20789831.ngrok.io'
+var querystring = require('querystring');
+var io = require('socket.io-client');
+var stringCommands = {};
+let commandsPath = 'commands.json';
+let configName = 'config.json';
+let user = {};
+const afs = require('await-fs');
+const fs = require('fs');
+const serverURL = 'https://4baa4c89.ngrok.io';
 
 class Command{
     /**
      * 
      * @param {name of execution file} command 
      */
-    constructor(command){
-        this._command = require('./modules/'+command+'.js')
+    constructor(command, jData){
+        this._command = require('./intents_modules/default/'+command)
+        this._jData = jData
     }
     execute(){
-        this._command.execute()
+        this._command.execute(this._jData)
     }
 }
 
@@ -37,19 +36,27 @@ class Command{
        const promptly = require('promptly')
        const email = await promptly.prompt('Amazon email: ');
        console.log('creating file with email: ', email);
-       config = {
+       cfg = {
            "email": email
        }
-       fs.writeFile(configName, JSON.stringify(config), 'utf8', (err) =>{
+       config = JSON.stringify(cfg)
+       fs.writeFile(configName, config, 'utf8', (err) =>{
            if(err) throw err;
            console.log('The file has been saved!')
        })
+   }
+   try{
+        cmds = await afs.readFile(commandsPath, 'utf8')
+        stringCommands = JSON.parse(cmds)
+   }
+   catch(err){
+        console.log('You dont have commands JSON file.')
    }
 
 socket = io(serverURL)
 socket.on('connect', (err) => {
     user = JSON.parse(config)
-    console.log('Meno: ', user['email']);
+    console.log('Meno: ', user['name']);
     if(err)
         console.log(err)
     else{
@@ -60,7 +67,7 @@ socket.on('connect', (err) => {
                 opn(serverURL+'/connect/amazon') //open login page
             }
             socket.emit('room', 'client', JSON.stringify(user), (msg) => {
-                console.log('Message from server: ', msg)
+                console.log('Log-in Message from server: ', msg)
             })
         }
         else {
@@ -74,15 +81,25 @@ socket.on('message', (requestBody) => {
 
     var jsonData = JSON.parse(requestBody)
     var type = jsonData.request.type
-    //var command = require(b)
-
-    craftResponse(type, jsonData)
-    if(type === "IntentRequest"){
+    if(jsonData.request.intent !== undefined)
         var intentName = jsonData.request.intent.name
-        command = new Command(intentName)
-        command.execute()
-        //executeCommand(jsonData)
+
+    if(stringCommands !== {} && stringCommands[intentName] !== undefined){
+        var cmd = stringCommands[intentName]
+        console.log('Commad to execute: ', cmd)
     }
+    else{
+        //if exist customCommand in ./CustomIntents/type.js
+        //else execute ./DefaultIntents/type.js
+        console.log('command is not set.')
+    
+        if(type === "IntentRequest"){
+            command = new Command(intentName, jsonData)
+            command.execute()
+            //executeCommand(jsonData)
+        }
+    } 
+    craftResponse(type, jsonData)
 })
 socket.on('login', (amazonUser) => {
     var au = JSON.parse(amazonUser)
@@ -175,36 +192,4 @@ function craftResponse(type, data){
         }
     }
     response(responseBody)
-}
-function executeCommand(jsonData){
-        if(jsonData.request.intent.name == "NextSlideIntent"){
-            ks.sendKey('right')
-            response("should be here some JSON data")
-        }
-        else if(jsonData.request.intent.name == "OpenPresentationIntent"){
-            var presentationName = jsonData.request.intent.slots.FileName.value + ".pptx"
-            console.log(presentationName)
-            var file = finder.from('').findFirst().findFiles(presentationName)
-            console.log(file)
-            if(file !== null){
-                if(os == 'linux'){
-                    exec('xdg-open ' + file, (err, out, code) => {
-                        if(err) throw err
-                    })
-                }
-                else if(os == 'win32'){ 
-                    exec(file, (error, stdout, stderr) => {
-                        if(error !== null){
-                            console.log(`exec error: ${error}`)
-                        }
-                    })
-                }
-            }        
-        }
-        else if(jsonData.request.intent.name == "StartPresentationIntent"){
-            ks.sendKey('f5')
-        }
-        else{
-            response("Intent does not exist.")
-        }
 }
