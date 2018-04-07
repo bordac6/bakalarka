@@ -17,6 +17,8 @@ class Command{
      * @param {name of execution file} command 
      */
     constructor(command, jData){
+        //if exist customCommand in ./intents_modules/custom/+command
+        //else execute ./intents_modules/default/+command
         this._command = require('./intents_modules/default/'+command)
         this._jData = jData
     }
@@ -84,7 +86,7 @@ socket.on('message', (requestBody) => {
     var type = jsonData.request.type
     if(type === "IntentRequest"){
         var intentName = jsonData.request.intent.name
-
+        console.log(intentName)
         if(stringCommands !== {} && stringCommands[intentName] !== undefined){ //defined command in json file
             var cmd = stringCommands[intentName]
             console.log('Commad to execute: ', cmd)
@@ -99,8 +101,6 @@ socket.on('message', (requestBody) => {
             }
         }
         else{
-            //if exist customCommand in ./CustomIntents/type.js
-            //else execute ./DefaultIntents/type.js
             command = new Command(intentName, jsonData)
             command.execute()
         } 

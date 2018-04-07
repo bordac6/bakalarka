@@ -1,3 +1,6 @@
 {
-    "CreateFileIntent": "mkdir D:\\helloWorld.txt"
+    "ExtendDisplayIntent": "displayswitch.exe /extend",
+    "DuplicateDisplayIntent": "displayswitch.exe /clone",
+    "InternalDisplayIntent": "displayswitch.exe /internal",
+    "ExternalDisplayIntent": "displayswitch.exe /external"
 }
