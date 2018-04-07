@@ -96,7 +96,7 @@ app.post('/api/echo', function(req, res){
           console.log('user id on line 96: ', user_id)
           //get user by ID
           let usr = getUserByAmazonId(user_id)
-          if(usr !== null){
+          if(usr !== undefined){
             //send request from alexa to user`s socket
             io.to(usr._sid).emit('message', requestBody)
 
@@ -173,7 +173,7 @@ app.use(session({
     addUser(str)
     var au = JSON.parse(str)
     usr = getUserByAmazonId(au['user_id'])
-    if(usr !== null){
+    if(usr !== undefined){
       //send request from alexa to user`s socket
       console.log('send user data to client')
       io.to(usr._sid).emit('login', str)
@@ -274,7 +274,7 @@ function getUserBySocketId(socketId){
 }
 function getUserByAmazonId(amazonId){
   if(amazonId === null)
-    return null
+    return undefined
   for(user of clients){
     if(user._aid === amazonId){
       return user
