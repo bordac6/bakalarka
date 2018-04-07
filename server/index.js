@@ -235,13 +235,14 @@ io.on('connect', (socket) => {
           socket.disconnect()
         }
       }
+      console.log(clients.length, ' users are connected.')
     })
 
     socket.on('disconnect', () => {
         var usr = getUserBySocketId(socket.id)
         var index = clients.indexOf(usr)
         if(index > -1) clients.splice(index, 1)
-        console.log('Client disconnected.')
+        console.log('Client ', usr.email, ' disconnected.')
         console.log(clients)
     })
     socket.on('alexaRes', (req, res) => {
