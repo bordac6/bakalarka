@@ -1,7 +1,7 @@
 {
     "server": {
       "protocol": "https",
-      "host": "20789831.ngrok.io"
+      "host": "4baa4c89.ngrok.io"
     },
     "amazon": {
       "key": "amzn1.application-oa2-client.c05458af025943b3920d694ecfc2c194",
