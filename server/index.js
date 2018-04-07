@@ -8,7 +8,7 @@ var Grant = require('grant-express')
 var grant = new Grant(require('./oauth.json'))
 var https = require('https')
 var session = require('express-session')
-var port = process.env.PORT || 3000
+var port = process.env.PORT || 56556 
 var alexaRes = {}
 var responseToAlexa = {}
 var clients = []
@@ -197,6 +197,7 @@ io.on('connect', (socket) => {
     socket.on('room', (room, usr, callback) => { 
       //loggin check
       au = JSON.parse(usr)
+      if(au !== null) {
       email = au['email']
       aid = au['user_id']
       if(isLoggedIn(email)){
@@ -215,7 +216,7 @@ io.on('connect', (socket) => {
       }
       else{
         user = getUserByEmail(email)
-        if(user === null){ //shoul`d be here in first time
+        if(user === undefined){ //shoul`d be here in first time
           var msg = 'Wait for amazon loggin.'
           user = new User()
           user.addEmail(email)
@@ -236,19 +237,24 @@ io.on('connect', (socket) => {
         }
       }
       console.log(clients.length, ' users are connected.')
+      }
+      else{
+      	console.log('undefined clien try connect')
+	callback('undefined user')
+      }
     })
 
     socket.on('disconnect', () => {
         var usr = getUserBySocketId(socket.id)
         var index = clients.indexOf(usr)
         if(index > -1) clients.splice(index, 1)
-        console.log('Client ', usr.email, ' disconnected.')
+        console.log('Client disconnected.')
         console.log(clients)
     })
     socket.on('alexaRes', (req, res) => {
       //check req is acceptable
         let usr = getUserBySocketId(socket.id)
-        if(usr != null){
+        if(usr != undefined){
           alexaRes[usr._aid] = req
           res("OK")
         }
@@ -264,7 +270,7 @@ function getUserBySocketId(socketId){
       return user
     }
   }
-  return null
+  return undefined
 }
 function getUserByAmazonId(amazonId){
   if(amazonId === null)
@@ -274,17 +280,17 @@ function getUserByAmazonId(amazonId){
       return user
     }
   }
-  return null
+  return undefined
 }
 function getUserByEmail(email){
   if(email === null)
-    return null
+    return undefined
   for(user of clients){
     if(user._email === email){
       return user
     }
   }
-  return null
+  return undefined
 }
 function isConnectedUser(email){
   if(email === null)
