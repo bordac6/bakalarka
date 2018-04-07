@@ -3,6 +3,7 @@
 var querystring = require('querystring');
 var io = require('socket.io-client');
 var stringCommands = {};
+var nrc = require('node-run-cmd');
 let commandsPath = 'commands.json';
 let configName = 'config.json';
 let user = {};
@@ -81,24 +82,29 @@ socket.on('message', (requestBody) => {
 
     var jsonData = JSON.parse(requestBody)
     var type = jsonData.request.type
-    if(jsonData.request.intent !== undefined)
+    if(type === "IntentRequest"){
         var intentName = jsonData.request.intent.name
 
-    if(stringCommands !== {} && stringCommands[intentName] !== undefined){
-        var cmd = stringCommands[intentName]
-        console.log('Commad to execute: ', cmd)
-    }
-    else{
-        //if exist customCommand in ./CustomIntents/type.js
-        //else execute ./DefaultIntents/type.js
-        console.log('command is not set.')
-    
-        if(type === "IntentRequest"){
+        if(stringCommands !== {} && stringCommands[intentName] !== undefined){ //defined command in json file
+            var cmd = stringCommands[intentName]
+            console.log('Commad to execute: ', cmd)
+
+            //ban dangerous commands
+            if(!cmd.match("(\^rm)|(\^del)")){ 
+                console.log("Do somethink save")
+                nrc.run(cmd);
+            }
+            else {
+                console.log('can`t remove files!')
+            }
+        }
+        else{
+            //if exist customCommand in ./CustomIntents/type.js
+            //else execute ./DefaultIntents/type.js
             command = new Command(intentName, jsonData)
             command.execute()
-            //executeCommand(jsonData)
-        }
-    } 
+        } 
+    }
     craftResponse(type, jsonData)
 })
 socket.on('login', (amazonUser) => {
