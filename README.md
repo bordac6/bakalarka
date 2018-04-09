@@ -5,6 +5,8 @@ Automaticke spustenie client appky pri starte:
   - start.bat subor pre spustenie client.js
   - pridat register do "HKLM\Software\Microsoft\Windows\Current controll set\Run\" String key s value "path/to/start.bat"
   - aby sa dal skryt cmd do tray, stiahnut appku RBtray a pridat ju do registrov pri sputeni "HKLM\Software\Microsoft\Windows\Current controll set\Run\" String key s value "path/to/RBtray.exe"
+2. Linux
+3. Mac
 
 Zmena adresy server:
 Ak sa zmenila adresa servera, je potrebne zmenit ju na troch miestach:
