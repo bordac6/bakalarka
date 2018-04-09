@@ -4,6 +4,7 @@ var querystring = require('querystring');
 var io = require('socket.io-client');
 var stringCommands = {};
 var nrc = require('node-run-cmd');
+var path = require('path')
 let commandsPath = 'commands.json';
 let configName = 'config.json';
 let user = {};
@@ -15,6 +16,7 @@ class Command{
     /**
      * 
      * @param {name of execution file} command 
+     * @param {json data from alexa skill} jData 
      */
     constructor(command, jData){
         //if exist customCommand in ./intents_modules/custom/+command
@@ -31,7 +33,7 @@ class Command{
 
    try{
        //saved login
-       config = await afs.readFile(configName, 'utf8')
+       config = await afs.readFile(path.join(__dirname, configName), 'utf8')
        console.log('saved: ', JSON.parse(config).email)
    }
    catch(err){
@@ -49,7 +51,7 @@ class Command{
        })
    }
    try{
-        cmds = await afs.readFile(commandsPath, 'utf8')
+        cmds = await afs.readFile(path.join(__dirname, commandsPath), 'utf8')
         stringCommands = JSON.parse(cmds)
    }
    catch(err){
