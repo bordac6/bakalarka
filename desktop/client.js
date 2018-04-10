@@ -4,9 +4,13 @@ var querystring = require('querystring');
 var io = require('socket.io-client');
 var stringCommands = {};
 var nrc = require('node-run-cmd');
-var path = require('path')
+var path = require('path');
+var os = require('os');
+var custom = path.join(os.homedir(), 'AlexaComputerControl', 'custom');
 let commandsPath = 'commands.json';
 let configName = 'config.json';
+let loginConfigPath = path.join(os.homedir(), 'AlexaComputerControl', configName);
+let commandConfigPath = path.join(os.homedir(), 'AlexaComputerControl', commandsPath);
 let user = {};
 const afs = require('await-fs');
 const fs = require('fs');
@@ -19,9 +23,18 @@ class Command{
      * @param {json data from alexa skill} jData 
      */
     constructor(command, jData){
-        //if exist customCommand in ./intents_modules/custom/+command
-        //else execute ./intents_modules/default/+command
-        this._command = require('./intents_modules/default/'+command)
+
+        try{
+            this._command = require(path.join(custom, command))
+        }
+        catch (err){
+            try{
+                this._command = require(path.join(__dirname, 'intents_modules', 'default', command))
+            }
+            catch (err){
+                console.log("Intent is no defined.")
+            }
+        }
         this._jData = jData
     }
     execute(){
@@ -31,9 +44,24 @@ class Command{
 
 (async function(){
 
+    if(!fs.existsSync(path.join(os.homedir(), 'AlexaComputerControl'))){
+        fs.mkdir(path.join(os.homedir(), 'AlexaComputerControl'))
+        console.log("makeing app directory")
+    }
+    if(!fs.existsSync(custom)){
+        fs.mkdir(custom)
+        console.log("makeing app directory")
+    }
+    if(!fs.existsSync(commandConfigPath)){
+        var commandsFile = JSON.stringify({"TypeIntent":"bash/cmd command"})
+        fs.write(commandConfigPath, commandsFile, 'utf8', (err) =>{
+            if(err) throw err;
+        })
+        console.log("makeing app directory")
+    }
    try{
        //saved login
-       config = await afs.readFile(path.join(__dirname, configName), 'utf8')
+       config = await afs.readFile(loginConfigPath, 'utf8')
        console.log('saved: ', JSON.parse(config).email)
    }
    catch(err){
@@ -45,13 +73,13 @@ class Command{
            "email": email
        }
        config = JSON.stringify(cfg)
-       fs.writeFile(configName, config, 'utf8', (err) =>{
+       fs.writeFile(loginConfigPath, config, 'utf8', (err) =>{
            if(err) throw err;
            console.log('The file has been saved!')
        })
    }
    try{
-        cmds = await afs.readFile(path.join(__dirname, commandsPath), 'utf8')
+        cmds = await afs.readFile(commandConfigPath, 'utf8')
         stringCommands = JSON.parse(cmds)
    }
    catch(err){
@@ -114,7 +142,7 @@ socket.on('login', (amazonUser) => {
     var mail = au['email']
     var user_id = au['user_id']
     if(mail !== undefined && user_id !== undefined)
-        fs.writeFile(configName, amazonUser)
+        fs.writeFile(loginConfigPath, amazonUser)
 
 })
 //socket.on('event', (data) => {})
