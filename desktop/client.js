@@ -52,12 +52,16 @@ class Command{
         fs.mkdir(custom)
         console.log("makeing app directory")
     }
-    if(!fs.existsSync(commandConfigPath)){
-        var commandsFile = JSON.stringify({"TypeIntent":"bash/cmd command"})
-        fs.write(commandConfigPath, commandsFile, 'utf8', (err) =>{
+    try{
+        fs.readFileSync(commandConfigPath)
+    }
+    catch(err){
+        var item = {"TypeIntent":"bash/cmd command"}
+        var commandsFile = JSON.stringify(item)
+        fs.writeFile(commandConfigPath, commandsFile, 'utf8', (err) =>{
             if(err) throw err;
         })
-        console.log("makeing app directory")
+        console.log("makeing configuration file")
     }
    try{
        //saved login
