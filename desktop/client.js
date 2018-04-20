@@ -173,6 +173,8 @@ socket.on('login', (amazonUser) => {
 //socket.on('event', (data) => {})
 socket.on('disconnect', (err) => {
   console.log('client was disconnected!', err)
+  process.send('disconnected')
+
 })
 })()
 

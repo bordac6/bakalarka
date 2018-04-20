@@ -11,9 +11,10 @@ var forked = null;
 app.on('ready', function(){
   win = new BrowserWindow({show: false});
   appIcon = new Tray(grayiconPath);
+  connectToComputerControlClient()
   var contextMenu = Menu.buildFromTemplate([
     {
-      label: 're/connect',
+      label: 'reconnect',
       click: function() {
           if(forked !== null) forked.kill('SIGKILL');
           connectToComputerControlClient()
@@ -63,6 +64,9 @@ function connectToComputerControlClient(){
       forked.on('message', function(msg){
         console.log('Message from child: ', msg)
         appIcon.setImage(iconPath)
+        if(msg === 'disconnected'){
+          forked.kill('SIGKILL')
+        }
       })
   
       // listen for errors as they may prevent the exit event from firing
