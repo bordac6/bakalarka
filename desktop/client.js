@@ -7,6 +7,7 @@ var nrc = require('node-run-cmd');
 var path = require('path');
 var os = require('os');
 var custom = path.join(os.homedir(), 'AlexaComputerControl', 'custom');
+var stringCommands = {};
 let commandsPath = 'commands.json';
 let configName = 'config.json';
 let loginConfigPath = path.join(os.homedir(), 'AlexaComputerControl', configName);
@@ -33,6 +34,7 @@ class Command{
             }
             catch (err){
                 console.log("Intent is no defined.")
+                console.log(path.join(custom,command))
             }
         }
         this._jData = jData
@@ -41,8 +43,27 @@ class Command{
         this._command.execute(this._jData)
     }
 }
-
 (async function(){
+//input from electron app
+process.on('message', (msg)=>{
+    console.log("Message from partent: ", msg);
+    if(msg === 'reload commands'){
+        loadCommands();
+        console.log("CLIENT: ", stringCommands)
+    }
+})
+try{
+    process.send("client started")
+}
+catch (err){
+    console.log("I am master.")
+}
+process.on('exit', (code) => {
+    process.exit(0);
+})
+
+//console app
+
 
     if(!fs.existsSync(path.join(os.homedir(), 'AlexaComputerControl'))){
         fs.mkdir(path.join(os.homedir(), 'AlexaComputerControl'))
@@ -63,32 +84,32 @@ class Command{
         })
         console.log("makeing configuration file")
     }
-   try{
-       //saved login
-       config = await afs.readFile(loginConfigPath, 'utf8')
-       console.log('saved: ', JSON.parse(config).email)
-   }
-   catch(err){
-       //first start
-       const promptly = require('promptly')
-       const email = await promptly.prompt('Amazon email: ');
-       console.log('creating file with email: ', email);
-       cfg = {
-           "email": email
-       }
-       config = JSON.stringify(cfg)
-       fs.writeFile(loginConfigPath, config, 'utf8', (err) =>{
-           if(err) throw err;
-           console.log('The file has been saved!')
-       })
-   }
-   try{
+    try{
+        //saved login
+        config = await afs.readFile(loginConfigPath, 'utf8')
+        console.log('saved: ', JSON.parse(config).email)
+    }
+    catch(err){
+        //first start
+        const promptly = require('promptly')
+        const email = await promptly.prompt('Amazon email: ');
+        console.log('creating file with email: ', email);
+        cfg = {
+            "email": email
+        }
+        config = JSON.stringify(cfg)
+        fs.writeFile(loginConfigPath, config, 'utf8', (err) =>{
+            if(err) throw err;
+            console.log('The file has been saved!')
+        })
+    }
+    try{
         cmds = await afs.readFile(commandConfigPath, 'utf8')
         stringCommands = JSON.parse(cmds)
-   }
-   catch(err){
+    }
+    catch(err){
         console.log('You dont have commands JSON file.')
-   }
+    }
 
 socket = io(serverURL)
 socket.on('connect', (err) => {
@@ -232,4 +253,14 @@ function craftResponse(type, data){
         }
     }
     response(responseBody)
+}
+
+function loadCommands(){
+    try{
+        cmds = fs.readFileSync(commandConfigPath)
+        stringCommands = JSON.parse(cmds)
+    }
+    catch(err){
+        console.log('You dont have commands JSON file.')
+    }
 }

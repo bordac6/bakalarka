@@ -1,0 +1,24 @@
+{
+  "name": "clientapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "client.js",
+  "dependencies": {
+    "await-fs": "^1.0.0",
+    "http": "^0.0.0",
+    "login-with-amazon": "^0.0.3",
+    "node-run-cmd": "^1.0.1",
+    "opn": "^5.2.0",
+    "promptly": "^3.0.3",
+    "socket.io-client": "^2.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "bordac6",
+  "license": "ISC",
+  "bin": {
+    "restart": "client.js"
+  }
+}
