@@ -1,0 +1,255 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "computer control",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "NextSlideIntent",
+                    "slots": [],
+                    "samples": [
+                        "next slide",
+                        "move slide"
+                    ]
+                },
+                {
+                    "name": "OpenPresentationIntent",
+                    "slots": [
+                        {
+                            "name": "FileName",
+                            "type": "AMAZON.LITERAL"
+                        }
+                    ],
+                    "samples": [
+                        "open my {AMAZON.LITERAL | FileName} presentation"
+                    ]
+                },
+                {
+                    "name": "StartPresentationIntent",
+                    "slots": [],
+                    "samples": [
+                        "start presentation",
+                        "play my presentation",
+                        "go presentation"
+                    ]
+                },
+                {
+                    "name": "ExtendDisplayIntent",
+                    "slots": [],
+                    "samples": [
+                        "extend monitor",
+                        "extend display"
+                    ]
+                },
+                {
+                    "name": "DuplicateDisplayIntent",
+                    "slots": [],
+                    "samples": [
+                        "duplicate monitor",
+                        "duplicate display"
+                    ]
+                },
+                {
+                    "name": "InternalDisplayIntent",
+                    "slots": [],
+                    "samples": [
+                        "show only on internal monitor",
+                        "show only on internal display",
+                        "disconnect from external display",
+                        "exit external",
+                        "quit external monitor",
+                        "quit external display",
+                        "blok external display",
+                        "show me only my display",
+                        "internal display"
+                    ]
+                },
+                {
+                    "name": "ExternalDisplayIntent",
+                    "slots": [],
+                    "samples": [
+                        "external monitor",
+                        "external display",
+                        "exit internal monitor",
+                        "quit internal moitor",
+                        "shutdown internal display",
+                        "quit internal display",
+                        "block internal display",
+                        "show my only external display",
+                        "show only on external display"
+                    ]
+                },
+                {
+                    "name": "ShutDownIntent",
+                    "slots": [],
+                    "samples": [
+                        "exit computer",
+                        "quit computer",
+                        "shut down computer",
+                        "shut down my computer"
+                    ]
+                },
+                {
+                    "name": "ZoomModeVideoIntent",
+                    "slots": [],
+                    "samples": [
+                        "change zoom mode",
+                        "change zoome mode",
+                        "zoom video in VLC"
+                    ]
+                },
+                {
+                    "name": "ToogleSubtitlesVideoIntent",
+                    "slots": [],
+                    "samples": [
+                        "toogle subtitles",
+                        "change subtitles"
+                    ]
+                },
+                {
+                    "name": "ToogleControlDisplayIntent",
+                    "slots": [],
+                    "samples": [
+                        "toogle control display"
+                    ]
+                },
+                {
+                    "name": "TimeRemainingVideoIntent",
+                    "slots": [],
+                    "samples": [
+                        "what is remaining time",
+                        "what time remains to the end",
+                        "what time remains to end",
+                        "how many time remains to end of video",
+                        "how many time remains to end of movie",
+                        "remaining time"
+                    ]
+                },
+                {
+                    "name": "StopVideoIntent",
+                    "slots": [],
+                    "samples": [
+                        "close movie",
+                        "close the movie",
+                        "exit video",
+                        "quit vido",
+                        "close video"
+                    ]
+                },
+                {
+                    "name": "StopPlayVideoIntent",
+                    "slots": [],
+                    "samples": [
+                        "start video",
+                        "start movie",
+                        "play movie",
+                        "pause movie",
+                        "stop movie",
+                        "play video",
+                        "pause video",
+                        "Stop video"
+                    ]
+                },
+                {
+                    "name": "PlayMediaSlowerVideoIntent",
+                    "slots": [],
+                    "samples": [
+                        "play movie little bit slower",
+                        "play video little bit slower",
+                        "slower movie",
+                        "slower video"
+                    ]
+                },
+                {
+                    "name": "PlayMediaFasterVideoIntent",
+                    "slots": [],
+                    "samples": [
+                        "play movie little bit faster",
+                        "play video little bit faster",
+                        "faster movie",
+                        "faster video"
+                    ]
+                },
+                {
+                    "name": "NextItemInMediaQueVideoIntent",
+                    "slots": [],
+                    "samples": [
+                        "play next media",
+                        "play next movie",
+                        "play next video",
+                        "next item in media que"
+                    ]
+                },
+                {
+                    "name": "MuteVideoIntent",
+                    "slots": [],
+                    "samples": [
+                        "unmute audio",
+                        "mute autio",
+                        "stop audio for movie",
+                        "play audio for movie",
+                        "start audio for movie",
+                        "unmute movie",
+                        "mute movie",
+                        "mute video"
+                    ]
+                },
+                {
+                    "name": "FullScreenVideoIntent",
+                    "slots": [],
+                    "samples": [
+                        "go to full screen",
+                        "open movie in full screen",
+                        "open video in full screen",
+                        "go movie to full screen",
+                        "go video to full screen",
+                        "full screen movie",
+                        "full screen video"
+                    ]
+                },
+                {
+                    "name": "AdjustVolumeUpVideoIntent",
+                    "slots": [],
+                    "samples": [
+                        "increase volume in video",
+                        "volume up in movie",
+                        "volume up in video",
+                        "increase volume in movie",
+                        "increase the volume",
+                        "volume up at video",
+                        "volume up for video",
+                        "volume up for movie",
+                        "volume up at movie"
+                    ]
+                },
+                {
+                    "name": "AdjustVOlumeDownVideoIntent",
+                    "slots": [],
+                    "samples": [
+                        "decrease volume in movie",
+                        "volume down at movie",
+                        "volume down for movie",
+                        "volume down in movie",
+                        "volume down at video",
+                        "volume down for video",
+                        "volume down in video",
+                        "decrease volume in video",
+                        "adjust volume down"
+                    ]
+                }
+            ],
+            "types": []
+        }
+    }
+}
