@@ -40,6 +40,7 @@ class Command{
             catch (err){
                 console.log("Intent is not defined. ", err)
                 console.log("Intent name: ", path.join(custom,command))
+                this._command = require(path.join(__dirname, 'intents_modules', 'MissingIntent'))
             }
         }
         this._jData = jData
