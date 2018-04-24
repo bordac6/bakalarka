@@ -8,6 +8,7 @@ var path = require('path');
 var os = require('os');
 var custom = path.join(os.homedir(), 'AlexaComputerControl', 'custom');
 var stringCommands = {};
+var https = require('https');
 let commandsPath = 'commands.json';
 let configName = 'config.json';
 let loginConfigPath = path.join(os.homedir(), 'AlexaComputerControl', configName);
@@ -15,6 +16,7 @@ let commandConfigPath = path.join(os.homedir(), 'AlexaComputerControl', commands
 let user = {};
 const afs = require('await-fs');
 const fs = require('fs');
+const finder = require('fs-finder');
 const serverURL = 'https://4baa4c89.ngrok.io';
 
 class Command{
@@ -26,15 +28,18 @@ class Command{
     constructor(command, jData){
 
         try{
-            this._command = require(path.join(custom, command))
+            var file = finder.from(custom).findFirst().findFiles(command)
+            this._command = require(file)
         }
         catch (err){
             try{
-                this._command = require(path.join(__dirname, 'intents_modules', 'default', command))
+                var file = finder.from(__dirname).findFirst().findFiles(command)
+                console.log(file)
+                this._command = require(file)
             }
             catch (err){
-                console.log("Intent is no defined.")
-                console.log(path.join(custom,command))
+                console.log("Intent is not defined. ", err)
+                console.log("Intent name: ", path.join(custom,command))
             }
         }
         this._jData = jData
@@ -183,7 +188,7 @@ function response(msg){
         console.log('Recieved from server: '+res)
     })
 }
-function craftResponse(type, data){
+function craftResponse(type, jsonBody){
     if(type === "LaunchRequest") {
       responseBody = {
         "version": "0.1",
@@ -208,7 +213,8 @@ function craftResponse(type, data){
       };
     }
     else if(type === "IntentRequest") {
-      // crafting a response
+
+   // crafting a response
       responseBody = {
         "version": "0.1",
         "response": {
@@ -242,7 +248,7 @@ function craftResponse(type, data){
               "card": {
                 "type": "Simple",
                 "title": "Error Parsing",
-                "content": JSON.stringify(data)
+                "content": JSON.stringify(jsonBody)
               },
               "reprompt": {
                 "outputSpeech": {
@@ -254,7 +260,7 @@ function craftResponse(type, data){
             }
         }
     }
-    response(responseBody)
+    //response(responseBody)
 }
 
 function loadCommands(){
