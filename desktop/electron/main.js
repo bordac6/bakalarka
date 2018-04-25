@@ -4,14 +4,36 @@ const finder = require('fs-finder');
 
 const iconPath = path.join(__dirname, 'ic.png');
 const grayiconPath = path.join(__dirname, 'gric.png');
+let configName = 'config.json';
+let os = require('os');
+let loginConfigPath = path.join(os.homedir(), 'AlexaComputerControl', configName);
+const afs = require('await-fs');
+const fs = require('fs');
 let appIcon = null;
 let win = null;
 var forked = null;
 
 app.on('ready', function(){
+  //during startup
   win = new BrowserWindow({show: false});
   appIcon = new Tray(grayiconPath);
-  connectToComputerControlClient()
+  console.log("app ready");
+    console.log("async function");
+  try{
+    //saved login
+    config = fs.readFileSync(loginConfigPath, 'utf8');
+    console.log('config: ', config);
+    connectToComputerControlClient()
+    //console.log('saved: ', config)
+  }
+  catch(err){
+      //first start
+      //user input
+      console.log(err)
+      login();
+  }
+
+  //button eavents
   var contextMenu = Menu.buildFromTemplate([
     {
       label: 'reconnect',
@@ -35,6 +57,12 @@ app.on('ready', function(){
         if(forked !== null){
           forked.send('reload commands')
         }
+      }
+    },
+    {
+      label: 'login',
+      click: function(){
+        login()
       }
     },
     { label: 'Quit',
@@ -93,4 +121,13 @@ function connectToComputerControlClient(){
       if (err) throw err;
       console.log('finished running computer control');
   });        
+}
+
+function login(){
+  win = new BrowserWindow({
+    width: 205,
+    height: 150
+  });
+  win.loadURL('file://' + __dirname + '/index.html')  
+  //save to file in index.html
 }

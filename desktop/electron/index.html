@@ -1,0 +1,45 @@
+<html>
+  <head>
+   <title>Login</title>
+   <style>
+      p {
+          margin-top: 10px;
+          position: absolute;
+          margin-left: 60px;
+      } 
+      .login{
+        margin: auto;
+      }
+      </style>
+  </head>
+  <body>
+    <label>Amazon email:</label><br>
+    <input type="text" name="email" id="email">
+    <p>
+      <input type="submit" name="login" id='login' value="login" onclick="loginFunc()">
+    </p>
+  <script>
+    var fs = require('fs');
+    const path = require('path')
+    const os = require('os');
+    let configName = 'config.json';
+    let loginConfigPath = path.join(os.homedir(), 'AlexaComputerControl', configName);
+    function loginFunc(){
+      var e = document.getElementById('email').value;
+      cfg = {
+          "email": e
+      }
+      config = JSON.stringify(cfg)
+      
+      fs.writeFile(loginConfigPath, config, 'utf8', (err) =>{
+          if(err) throw err;
+          console.log('The file has been saved!')
+      })
+      setTimeout(() => { 
+         window.close();
+      }, 10)
+    }
+    
+  </script>  
+  </body>
+</html>
