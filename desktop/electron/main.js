@@ -36,7 +36,7 @@ app.on('ready', function(){
   //button eavents
   var contextMenu = Menu.buildFromTemplate([
     {
-      label: 'reconnect',
+      label: 're/connect',
       click: function() {
           if(forked !== null) forked.kill('SIGKILL');
           connectToComputerControlClient()
