@@ -196,12 +196,12 @@ function craftResponse(type, jsonBody){
         "response": {
           "outputSpeech": {
             "type": "PlainText",
-            "text": "Welcome to Echo Sample! Please say a command"
+            "text": "Welcome to Alexa computer control system! You can control your computer."
           },
           "card": {
             "type": "Simple",
             "title": "Opened",
-            "content": "You started the Node.js Echo API Sample"
+            "content": "You started the Node.js Echo API"
           },
           "reprompt": {
             "outputSpeech": {
@@ -221,7 +221,7 @@ function craftResponse(type, jsonBody){
         "response": {
           "outputSpeech": {
             "type": "PlainText",
-            "text": "Do somethink on computer."
+            "text": "Yes, sir"
           },
           "card": {
             "type": "Simple",
@@ -244,7 +244,7 @@ function craftResponse(type, jsonBody){
             "response": {
               "outputSpeech": {
                 "type": "PlainText",
-                "text": "Command sent to client."
+                "text": "Oops, something unexpected has happend."
               },
               "card": {
                 "type": "Simple",
