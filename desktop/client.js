@@ -261,7 +261,7 @@ function craftResponse(type, jsonBody){
             }
         }
     }
-    //response(responseBody)
+    response(responseBody)
 }
 
 function loadCommands(){
