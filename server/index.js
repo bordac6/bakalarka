@@ -7,11 +7,14 @@ var request = require('request')
 var Grant = require('grant-express')
 var grant = new Grant(require('./oauth.json'))
 var https = require('https')
+var http = require('http')
 var session = require('express-session')
 var port = process.env.PORT || 56556 
 var alexaRes = {}
 var responseToAlexa = {}
 var clients = []
+// var moment = require('moment')
+// var ts = moment()
 
 class User{
   constructor(amazonId=null, socketId=null, socket=null, email=null){
@@ -100,7 +103,12 @@ app.post('/api/echo', function(req, res){
             //send request from alexa to user`s socket
             io.to(usr._sid).emit('message', requestBody)
 
-            //wait for response from client and send to Alexa
+            //progressive response
+            var aplicationId = jsonBody.context.System.application.applicationId
+            var apiAccessToken = jsonBody.context.System.apiAccessToken
+            var requestId = jsonBody.request.requestId
+            // wait for response from client and send to Alexa
+            
             setTimeout(() => {      
               if(alexaRes[user_id]){
                 res.statusCode = 200;
@@ -108,33 +116,34 @@ app.post('/api/echo', function(req, res){
                 res.send(alexaRes[user_id]);
                 delete alexaRes[user_id]
               }
-              else {
-                responseBody = {
-                  "version": "0.1",
-                  "response": {
-                    "outputSpeech": {
-                      "type": "PlainText",
-                      "text": "Client is Unreachable"
-                    },
-                    "card": {
-                      "type": "Simple",
-                      "title": "DoCommand",
-                      "content": "Can't connect to client."
-                    },
-                    "reprompt": {
-                      "outputSpeech": {
-                        "type": "PlainText",
-                        "text": "Say a command"
-                      }
-                    },
-                    "shouldEndSession": false
-                  }
-                }
-              } 
-            }, 500) 
+            }, 800) 
           }
           else{
-            console.log('User is not connected')
+            console.log('User is not connected.')
+            responseBody = {
+              "version": "0.1",
+              "response": {
+                "outputSpeech": {
+                  "type": "PlainText",
+                  "text": "Client is not connected."
+                },
+                "card": {
+                  "type": "Simple",
+                  "title": "DoCommand",
+                  "content": "Can't connect to client."
+                },
+                "reprompt": {
+                  "outputSpeech": {
+                    "type": "PlainText",
+                    "text": "Pleas connect your client app on your computer."
+                  }
+                },
+                "shouldEndSession": false
+              }
+            }
+            res.statusCode = 200;
+            res.contentType('application/json');
+            res.send(responseBody);
           }
         }
         else{
@@ -212,7 +221,7 @@ io.on('connect', (socket) => {
         }
         socket.join(room)
         clients.push(user)
-        callback('yes')
+        callback('Previous client was disconnected. You are now controling this computer.')
       }
       else{
         user = getUserByEmail(email)
@@ -240,7 +249,7 @@ io.on('connect', (socket) => {
       }
       else{
       	console.log('undefined clien try connect')
-	callback('undefined user')
+	      callback('undefined user')
       }
     })
 
