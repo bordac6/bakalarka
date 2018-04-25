@@ -97,18 +97,15 @@ app.post('/api/echo', function(req, res){
           let profile = JSON.parse(body)
           let user_id = profile.user_id
           console.log('user id on line 96: ', user_id)
+          console.log('request type: ', jsonBody.request.type)
           //get user by ID
           let usr = getUserByAmazonId(user_id)
+          console.log('found client: ', usr)
           if(usr !== undefined){
             //send request from alexa to user`s socket
             io.to(usr._sid).emit('message', requestBody)
 
-            //progressive response
-            var aplicationId = jsonBody.context.System.application.applicationId
-            var apiAccessToken = jsonBody.context.System.apiAccessToken
-            var requestId = jsonBody.request.requestId
             // wait for response from client and send to Alexa
-            
             setTimeout(() => {      
               if(alexaRes[user_id]){
                 res.statusCode = 200;
@@ -116,7 +113,7 @@ app.post('/api/echo', function(req, res){
                 res.send(alexaRes[user_id]);
                 delete alexaRes[user_id]
               }
-            }, 800) 
+            }, 600) 
           }
           else{
             console.log('User is not connected.')
@@ -161,8 +158,8 @@ app.use(session({
  app.use(grant);
  
  app.get('/userdevices', function (req, res) {
-  var userid=req.session.userid;
-  res.write(userid);
+  var username=req.session.username;
+  res.write("You have been successfully logged-in as " + username);
   res.end();
  });
  
@@ -188,7 +185,7 @@ app.use(session({
       io.to(usr._sid).emit('login', str)
     }
     //console.log('Users after added one: ', clients)
-    req.session.userid=JSON.parse(str).user_id;
+    req.session.username=JSON.parse(str).name;
     res.writeHead(302, {'Location': '/userdevices'});
      res.end();
    });
@@ -265,10 +262,10 @@ io.on('connect', (socket) => {
         let usr = getUserBySocketId(socket.id)
         if(usr != undefined){
           alexaRes[usr._aid] = req
-          res("OK")
+          res("Message was sent to Alexa skill.")
         }
         else{
-          res("NO")
+          res("User is undefined.")
         }
     })
 })
