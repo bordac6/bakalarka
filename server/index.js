@@ -159,7 +159,7 @@ app.use(session({
  
  app.get('/userdevices', function (req, res) {
   var username=req.session.username;
-  res.write("You have been successfully logged-in as " + username);
+  res.write("You have been successfully logged-in as " + username +". You can close this tab.");
   res.end();
  });
  
