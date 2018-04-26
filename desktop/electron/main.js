@@ -11,6 +11,7 @@ const afs = require('await-fs');
 const fs = require('fs');
 let appIcon = null;
 let win = null;
+let loginwin = null;
 var forked = null;
 
 app.on('ready', function(){
@@ -124,10 +125,14 @@ function connectToComputerControlClient(){
 }
 
 function login(){
-  win = new BrowserWindow({
+  loginwin = new BrowserWindow({
     width: 205,
     height: 150
   });
-  win.loadURL('file://' + __dirname + '/index.html')  
+  loginwin.loadURL('file://' + __dirname + '/index.html')
+  loginwin.on('closed', () => {
+    console.log('closed');
+    connectToComputerControlClient()
+  })
   //save to file in index.html
 }
