@@ -7,13 +7,11 @@ prerekvizity:
 
 Automaticke spustenie client appky pri starte:
 1. Windows
-
   - spustenie consolovej aplikacie pri starte s moznostou zobrazenia consoloveho vypisu
     - start.bat subor pre spustenie client.js
     - pridat register do "HKLM\Software\Microsoft\Windows\Current controll set\Run\" String key s value "path/to/start.bat"
     - aby sa dal skryt cmd do tray, stiahnut appku RBtray a pridat ju do registrov pri sputeni      "HKLM\Software\Microsoft\Windows\Current controll set\Run\" String key s value "path/to/RBtray.exe"
-    
-   - spustenie aplikacie s TRAY ikonkou a GUI ovladanim
+  - spustenie aplikacie s TRAY ikonkou a GUI ovladanim
     - start.bat subor pre spustenie main.js cez electron
     - .vbs file pre spustenie commandline bez zobrazenia pouzivatelovi
     - pridat register do "HKLM\Software\Microsoft\Windows\Current controll set\Run\" String key s value "path/to/start.vbs"
