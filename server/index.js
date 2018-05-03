@@ -79,7 +79,7 @@ app.post('/api/echo', function(req, res){
           "card": {
             "type": "LinkAccount"
           },
-          "shouldEndSession": false
+          "shouldEndSession": true
         },
         "sessionAttributes": {}
       };
