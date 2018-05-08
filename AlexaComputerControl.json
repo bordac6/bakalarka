@@ -226,7 +226,6 @@
                         "volume up in movie",
                         "volume up in video",
                         "increase volume in movie",
-                        "increase the volume",
                         "volume up at video",
                         "volume up for video",
                         "volume up for movie",
@@ -234,7 +233,7 @@
                     ]
                 },
                 {
-                    "name": "AdjustVOlumeDownVideoIntent",
+                    "name": "AdjustVolumeDownVideoIntent",
                     "slots": [],
                     "samples": [
                         "decrease volume in movie",
@@ -246,6 +245,34 @@
                         "volume down in video",
                         "decrease volume in video",
                         "adjust volume down"
+                    ]
+                },
+                {
+                    "name": "IncreaseSystemVolume",
+                    "slots": [
+                        {
+                            "name": "number",
+                            "type": "AMAZON.NUMBER"
+                        }
+                    ],
+                    "samples": [
+                        "tune volume up {number} times",
+                        "tune volume up",
+                        "increase system volume"
+                    ]
+                },
+                {
+                    "name": "DecreaseSystemVolume",
+                    "slots": [
+                        {
+                            "name": "number",
+                            "type": "AMAZON.NUMBER"
+                        }
+                    ],
+                    "samples": [
+                        "decrease system volume",
+                        "tune volume down",
+                        "tune volume down {number} times"
                     ]
                 }
             ],
