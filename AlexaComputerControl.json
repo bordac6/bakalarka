@@ -274,6 +274,25 @@
                         "tune volume down",
                         "tune volume down {number} times"
                     ]
+                },
+                {
+                    "name": "CloseAppIntent",
+                    "slots": [],
+                    "samples": [
+                        "close aplication",
+                        "exit aplication",
+                        "Close the app"
+                    ]
+                },
+                {
+                    "name": "SwitchAplicationIntent",
+                    "slots": [],
+                    "samples": [
+                        "show me next opened aplication",
+                        "change aplication",
+                        "open another aplication",
+                        "switch aplication"
+                    ]
                 }
             ],
             "types": []
