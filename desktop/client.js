@@ -209,7 +209,7 @@ function craftResponse(type, jsonBody){
               "text": "Say a command"
             }
           },
-          "shouldEndSession": false
+          "shouldEndSession": true
         }
       };
     }
@@ -234,7 +234,7 @@ function craftResponse(type, jsonBody){
               "text": "Say a command"
             }
           },
-          "shouldEndSession": false
+          "shouldEndSession": true
         }
       };
     }
