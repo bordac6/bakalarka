@@ -4,7 +4,7 @@ prerekvizity:
 1. nainstalovany node aspon 8.0
 2. nainstalovany electron v global mode
 (ak nejde nainstalovat, skusit `sudo npm install -g electron --unsafe-perm=true --allow-root`)
-3. ubuntu pre zobrazenie TRAY ICON: sudo apt-get install libappindicator1 
+3. ubuntu pre zobrazenie TRAY ICON: `sudo apt-get install libappindicator1` 
 
 Automaticke spustenie client appky pri starte:
 1. Windows
