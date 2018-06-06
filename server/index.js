@@ -197,7 +197,7 @@ io.on('connect', (socket) => {
     console.log('New client on socket is connected.')
 /**
  * room: name of chanel for communication with clients
- * email : loggin email to amazon
+ * usr : JSON login credentials
  * callback: function with one string for message to clien
  */
     socket.on('room', (room, usr, callback) => { 
