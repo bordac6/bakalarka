@@ -19,6 +19,13 @@ Automaticke spustenie client appky pri starte:
 2. Linux
 3. Mac
 
+Prihlasovanie:
+ 1. desktop aplikacia: 
+   - pri prvom spusteni je pouzivatel vyzvany k zadaniu emailovej adresi k Amazon uctu
+   - otvori sa mu webstranka so zadanim prihlasovacich udajov Amazonu / alebo si ju otvori manualne (konzola mu vypise adresu)
+ 2. Amazon zariadenie
+   - pri prvom pouziti Alexa skillu Computer Control je pouzivatelovi oznamene, ze sa pouziva Account Linking a musi sa prihlasit na webstranke alexa.amazon.sk (na tejto stranke je zoznam pouzitych hlasovych prikazov, najdem prikaz s nazvom Computer Control a v nom zvolim `Link Account` -> zadam prihlasovacie udaje do Amazon uctu)
+
 Zmena adresy server:
 Ak sa zmenila adresa servera, je potrebne zmenit ju na troch miestach:
 - na serveri v subore oauth.json
