@@ -1,0 +1,9 @@
+{
+    "ExtendDisplayIntent": "displayswitch.exe /extend",
+    "DuplicateDisplayIntent": "displayswitch.exe /clone",
+    "InternalDisplayIntent": "displayswitch.exe /internal",
+    "ExternalDisplayIntent": "displayswitch.exe /external",
+	"ShutDownIntent": "shutdown -f -s -t 60",
+	"AdjustVolumeUpVideoIntent": "D:\\FMFI\\BakalarskaPraca\\LS\\nircmd\\nircmd.exe changesysvolume 2000",
+	"AdjustVolumeDownVideoIntent": "D:\\FMFI\\BakalarskaPraca\\LS\\nircmd\\nircmd.exe changesysvolume -2000"
+}
