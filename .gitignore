@@ -1,0 +1,4 @@
+server/node_modules/
+desktop/node_modules/
+desktop/electron/node_modules/
+.idea/

@@ -7,7 +7,6 @@
     "await-fs": "^1.0.0",
     "fs-finder": "^1.8.1",
     "http": "^0.0.0",
-    "login-with-amazon": "^0.0.3",
     "node-key-sender": "^1.0.10",
     "node-run-cmd": "^1.0.1",
     "opn": "^5.2.0",
