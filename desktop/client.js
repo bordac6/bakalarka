@@ -69,15 +69,19 @@ process.on('exit', (code) => {
 })
 
 //console app
-
+    console.log('My locations: ', path.join(os.homedir(), 'AlexaComputerControl'), custom, commandConfigPath)
 
     if(!fs.existsSync(path.join(os.homedir(), 'AlexaComputerControl'))){
-        fs.mkdir(path.join(os.homedir(), 'AlexaComputerControl'))
-        console.log("makeing app directory")
+        fs.mkdir(path.join(os.homedir(), 'AlexaComputerControl'), (err) => {
+            console.error(err);
+        })
+        console.log('makeing app directory at ', path.join(os.homedir(), 'AlexaComputerControl') )
     }
     if(!fs.existsSync(custom)){
-        fs.mkdir(custom)
-        console.log("makeing app directory")
+        fs.mkdir(custom, (err) => {
+            console.error(err);
+        }),
+        console.log("makeing app directory at ", custom)
     }
     try{
         fs.readFileSync(commandConfigPath)
@@ -88,25 +92,25 @@ process.on('exit', (code) => {
         fs.writeFile(commandConfigPath, commandsFile, 'utf8', (err) =>{
             if(err) throw err;
         })
-        console.log("makeing configuration file")
+        console.log("makeing configuration file at ", commandConfigPath)
     }
     try{
         //saved login
         config = await afs.readFile(loginConfigPath, 'utf8')
-        console.log('saved: ', JSON.parse(config).email)
+        console.log(`saved: ${JSON.parse(config).email} at ${loginConfigPath}`)
     }
     catch(err){
         //first start
         const promptly = require('promptly')
-        const email = await promptly.prompt('Amazon email: ');
-        console.log('creating file with email: ', email);
+        const email = await promptly.prompt('Amazon email: ')
+        console.log('creating file with email: ', email)
         cfg = {
             "email": email
         }
         config = JSON.stringify(cfg)
         fs.writeFile(loginConfigPath, config, 'utf8', (err) =>{
             if(err) throw err;
-            console.log('The file has been saved!')
+            console.log(`The file has been saved! Location: ${loginConfigPath}`)
         })
     }
     try{
@@ -120,7 +124,7 @@ process.on('exit', (code) => {
 socket = io(serverURL)
 socket.on('connect', (err) => {
     user = JSON.parse(config)
-    console.log('Meno: ', user['name']);
+    console.log('Name: ', user['name']);
     if(err)
         console.log(err)
     else{

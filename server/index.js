@@ -13,8 +13,6 @@ var port = process.env.PORT || 56556
 var alexaRes = {}
 var responseToAlexa = {}
 var clients = []
-// var moment = require('moment')
-// var ts = moment()
 
 class User{
   constructor(amazonId=null, socketId=null, socket=null, email=null){
