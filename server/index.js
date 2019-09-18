@@ -33,11 +33,12 @@ class User{
   addAmazonId(amazonId){
     this._aid = amazonId
   }
-  addSocketId(socketId){
-    this._sid = socketId
-  }
   addSocket(socket){
+    if (this._socket)
+      this._socket.disconnect()
+
     this._socket = socket
+    this._sid = socket.id
   }
   addEmail(email){
     this._email = email
@@ -198,53 +199,28 @@ io.on('connect', (socket) => {
  * usr : JSON login credentials
  * callback: function with one string for message to clien
  */
-    socket.on('room', (room, usr, callback) => { 
+    socket.on('room', (room, usr, callback) => {
       //loggin check
-      au = JSON.parse(usr)
-      if(au !== null) {
-      email = au['email']
-      aid = au['user_id']
-      if(isLoggedIn(email)){
-        user = getUserByEmail(email)
-        if(isConnectedUser(email)){ //connection second time
-          user._socket.disconnect()
-        }
-        user.addSocketId(socket.id)
-        user.addSocket(socket)
-        if(aid !== null){
-          user.addAmazonId(aid)
-        }
+      try {
+        const loginCredentials = JSON.parse(usr);
+        const email = loginCredentials['email'];
+        const token = loginCredentials['user_id'];
+
+        const cachedUser = getUserByEmail(email);
+        verifyToken(token, cachedUser);
+
+        cachedUser.addEmail(email);
+        cachedUser.addAmazonId(token);
+        cachedUser.addSocket(socket);
+
         socket.join(room)
         clients.push(user)
-        callback('Previous client was disconnected. You are now controling this computer.')
+        callback('Successfully connected on server.')
       }
-      else{
-        user = getUserByEmail(email)
-        if(user === undefined){ //shoul`d be here in first time
-          var msg = 'Wait for amazon loggin.'
-          user = new User()
-          user.addEmail(email)
-          if(aid !== null){
-            user.addAmazonId(aid)
-            msg = 'Succesfully logged in.'
-          }
-          user.addSocket(socket)
-          user.addSocketId(socket.id)
-
-          socket.join(room)
-          clients.push(user)
-          callback(msg)
-        }
-        else{ 
-          callback('Not yet logged with amazon.')
-          socket.disconnect()
-        }
-      }
-      console.log(clients.length, ' users are connected.')
-      }
-      else{
-      	console.log('undefined clien try connect')
-	      callback('undefined user')
+      catch (err) {
+        socket.disconnect()
+      	console.log(err)
+	      callback(err)
       }
     })
 
@@ -276,6 +252,7 @@ function getUserBySocketId(socketId){
   }
   return undefined
 }
+
 function getUserByAmazonId(amazonId){
   if(amazonId === null)
     return undefined
@@ -286,36 +263,18 @@ function getUserByAmazonId(amazonId){
   }
   return undefined
 }
+
 function getUserByEmail(email){
   if(email === null)
-    return undefined
+    throw {message: "incorect credentials"};
   for(user of clients){
     if(user._email === email){
-      return user
+      return user;
     }
   }
-  return undefined
+  return new User();
 }
-function isConnectedUser(email){
-  if(email === null)
-    return false
-  for(user of clients){
-    if(user._email === email && user._aid !== null && user._sid !== null){
-      return true
-    }
-  }
-  return false
-}
-function isLoggedIn(email){
-  if(email === null)
-    throw false
-  for(user of clients){
-    if(user._email === email && user._aid !== null){
-      return true
-    }
-  }
-  return false
-}
+
 function addUser(amazonUser){
   au = JSON.parse(amazonUser)
   for(user of clients){
@@ -329,4 +288,9 @@ function addUser(amazonUser){
   user.addEmail(au['email'])
   clients.push(user)
   return true
+}
+
+function verifyToken(token, user) {
+  if (user.aid() !== undefined && token !== user.aid())
+    throw {message: "Invalid credentials!"}
 }
