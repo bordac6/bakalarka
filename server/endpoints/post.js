@@ -1,9 +1,8 @@
 
-export function createWebServer(server){
+exports.createWebServer = function(app, server, port){
   // Creates the website server on the port #
   server.listen(port, function () {
     console.log('Server listening at port %d', port);
-    console.log('Clients connected to server: ', clients)
   });
 
   // Handles the route for echo apis

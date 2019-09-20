@@ -1,10 +1,12 @@
-var assert = require('assert')
-var express = require('express')
-var app = express()
-var server = require('http').createServer(app)
-var io = require('socket.io').listen(server)
-var request = require('request')
-var https = require('https')
-var http = require('http')
-var port = process.env.PORT || 56556 
+const socketServer = require("./endpoints/socket.js");
+const postServer = require("./endpoints/post.js");
+const oAuthServer = require("./endpoints/oAuth.js");
 
+const express = require('express')
+const app = express()
+const server = require('http').createServer(app)
+const port = process.env.PORT || 56556 
+
+postServer.createWebServer(app, server, port);
+socketServer.createSocketServer(server);
+oAuthServer.createOAuthServer(app);

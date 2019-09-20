@@ -1,13 +1,12 @@
 let express = require('express')
-let app = express()
 let session = require('express-session')
 let Grant = require('grant-express')
-let grant = new Grant(require('./oauth.json'))
+let grant = new Grant(require('../oauth.json'))
 
 let aidOfLogedInUsers = new Set();
 
 //oAuth
-export function createOAuthServer(){
+exports.createOAuthServer = function(app){
   app.use(session({secret:'very secret'}));
   app.use(grant);
   
@@ -31,13 +30,13 @@ export function createOAuthServer(){
 
       addUser(str)
 
-      // let au = JSON.parse(str)
-      // usr = getUserByAmazonId(au['user_id'])
-      // if(usr !== undefined){
-      //   //send request from alexa to user`s socket
-      //   console.log('send user data to client')
-      //   io.to(usr._sid).emit('login', str)
-      // }
+      let au = JSON.parse(str)
+      usr = getUserByAmazonId(au['user_id'])
+      if(usr !== undefined){
+        //send request from alexa to user`s socket
+        console.log('send user data to client')
+        io.to(usr._sid).emit('login', str)
+      }
       
       req.session.username=JSON.parse(str).name;
       res.writeHead(302, {'Location': '/userdevices'});

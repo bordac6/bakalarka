@@ -1,8 +1,8 @@
-import { getUserByAmazonId, getUserByEmail, getUserBySocketId } from "../utils/user-login-util";
-import { isConnectedUser, isLoggedIn } from "../utils/user-login-util";
-import { matchSocketConnectionWithAmazonAccount } from "../utils/user-login-util";
+const getUserBySocketId = require("../utils/user-login-util").getUserBySocketId;
+const matchSocketConnectionWithAmazonAccount = require("../utils/user-login-util").matchSocketConnectionWithAmazonAccount;
+const removeUserFromCache = require("../utils/user-login-util").removeUserFromCache;
 
-export function createSocketServer(server) {
+exports.createSocketServer = function(server) {
   let io = require('socket.io').listen(server);
 
   //socket.io
@@ -16,67 +16,18 @@ export function createSocketServer(server) {
     socket.on('room', (room, usr, callback) => {
       
       try {
-        matchSocketConnectionWithAmazonAccount(usr, socket, room, callback);
+        const message = matchSocketConnectionWithAmazonAccount(usr, socket, room);
+        callback(message);
       } catch (err) {
-        callback(err);
         socket.disconnect();
+        console.log(err);
+        callback(err);
       }
-      //loggin check
-      // au = JSON.parse(usr)
-      // if(au !== null) {
-      //   email = au['email']
-      //   aid = au['user_id']
-      //   if(isLoggedIn(email)){
-      //     user = getUserByEmail(email)
-      //     if(isConnectedUser(email)){ //connection second time
-      //       user._socket.disconnect()
-      //     }
-      //     user.addSocketId(socket.id)
-      //     user.addSocket(socket)
-      //     if(aid !== null){
-      //       user.addAmazonId(aid)
-      //     }
-      //     socket.join(room)
-      //     clients.push(user)
-      //     callback('Previous client was disconnected. You are now controling this computer.')
-      //   }
-      //   else{
-      //     user = getUserByEmail(email)
-      //     if(user === undefined){ //shoul`d be here in first time
-      //       var msg = 'Wait for amazon loggin.'
-      //       user = new User()
-      //       user.addEmail(email)
-      //       if(aid !== null){
-      //         user.addAmazonId(aid)
-      //         msg = 'Succesfully logged in.'
-      //       }
-      //       user.addSocket(socket)
-      //       user.addSocketId(socket.id)
-
-      //       socket.join(room)
-      //       clients.push(user)
-      //       callback(msg)
-      //     }
-      //     else{ 
-      //       callback('Not yet logged with amazon.')
-      //       socket.disconnect()
-      //     }
-      //   }
-      //   console.log(clients.length, ' users are connected.')
-      // }
-      // else{
-      //   console.log('undefined clien try connect')
-      //   callback('undefined user')
-      // }
-
     })
 
     socket.on('disconnect', () => {
-        var usr = getUserBySocketId(socket.id)
-        var index = clients.indexOf(usr)
-        if(index > -1) clients.splice(index, 1)
-        console.log('Client disconnected.')
-        console.log(clients)
+        var usr = getUserBySocketId(socket.id);
+        removeUserFromCache(usr);
     })
     socket.on('alexaRes', (req, res) => {
       //check req is acceptable

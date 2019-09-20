@@ -1,9 +1,9 @@
 class User{
-  constructor(amazonId=null, socketId=null, socket=null, email=null){
-    this._email = email
+  constructor(amazonId=undefined, socketId=undefined, socket=undefined, email=undefined){
     this._aid = amazonId
     this._sid = socketId
     this._socket = socket
+    this._email = email
   }
   get aid(){
     return this._aid
@@ -17,11 +17,12 @@ class User{
   addAmazonId(amazonId){
     this._aid = amazonId
   }
-  addSocketId(socketId){
-    this._sid = socketId
-  }
   addSocket(socket){
+    if (this._socket)
+      this._socket.disconnect()
+
     this._socket = socket
+    this._sid = socket.id
   }
   addEmail(email){
     this._email = email
@@ -32,30 +33,31 @@ let alexaRes = {}
 let responseToAlexa = {}
 let clients = []
 
-export function matchSocketConnectionWithAmazonAccount(usr, socket, room, callback){
-  const userLoginObject = JSON.parse(usr);
-  if (userLoginObject === null) {
-    throw {message: "Requested login is incorrect."}
-  }
-  const email = userLoginObject['email'];
-  const amazonId = userLoginObject['user_id'];
-  if (isLoggedIn(email)){
-    addSocketToUser()
-    user = getUserByEmail(email);
-    if (isConnectedUser(email)) {
-      user._socket.disconnect();
-    }
-    user.addSocketId(socket.id);
-    user.addSocket(socket);
-    if (amazonId !== null) {
-      user.addAmazonId(amazonId);
-    }
+exports.matchSocketConnectionWithAmazonAccount = function(usr, socket, room){
+  const loginCredentials = JSON.parse(usr);
+  const email = loginCredentials['email'];
+  const token = loginCredentials['user_id'];
 
-  }
-  
+  const cachedUser = getUserByEmail(email);
+  verifyToken(token, cachedUser);
+
+  cachedUser.addEmail(email);
+  cachedUser.addAmazonId(token);
+  cachedUser.addSocket(socket);
+
+  socket.join(room);
+  clients.push(cachedUser);
+  return 'Successfully connected on server.';
 }
 
-export function getUserBySocketId(socketId){
+exports.removeUserFromCache = function(user){
+  var index = clients.indexOf(user)
+  if(index > -1) clients.splice(index, 1)
+    console.log('Client disconnected.')
+  console.log(clients)
+}
+
+exports.getUserBySocketId = function(socketId){
   for(user of clients){
     if(user._sid === socketId){
       return user
@@ -64,7 +66,7 @@ export function getUserBySocketId(socketId){
   return undefined
 }
 
-export function getUserByAmazonId(amazonId){
+exports.getUserByAmazonId = function(amazonId){
   if(amazonId === null)
     return undefined
   for(user of clients){
@@ -75,40 +77,29 @@ export function getUserByAmazonId(amazonId){
   return undefined
 }
 
-export function getUserByEmail(email){
+exports.getUserByEmail = function(email){
   if(email === null)
-    return undefined
+    throw {message: "incorect credentials"};
   for(user of clients){
     if(user._email === email){
-      return user
+      return user;
     }
   }
-  return undefined
+  return new User();
 }
 
-export function isConnectedUser(email){
+function getUserByEmail(email){
   if(email === null)
-    return false
+    throw {message: "incorect credentials"};
   for(user of clients){
-    if(user._email === email && user._aid !== null && user._sid !== null){
-      return true
+    if(user._email === email){
+      return user;
     }
   }
-  return false
+  return new User();
 }
 
-export function isLoggedIn(email){
-  if(email === null)
-    throw false
-  for(user of clients){
-    if(user._email === email && user._aid !== null){
-      return true
-    }
-  }
-  return false
-}
-
-export function addUser(amazonUser){
+exports.addUser = function(amazonUser){
   au = JSON.parse(amazonUser)
   for(user of clients){
     if(user._email === au['email']){
@@ -121,4 +112,9 @@ export function addUser(amazonUser){
   user.addEmail(au['email'])
   clients.push(user)
   return true
+}
+
+function verifyToken(token, user) {
+  if (user.aid !== undefined && token !== user.aid)
+    throw {message: "Invalid credentials!"}
 }
