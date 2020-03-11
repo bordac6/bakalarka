@@ -1,6 +1,7 @@
 const getUserBySocketId = require("../utils/user-login-util").getUserBySocketId;
 const matchSocketConnectionWithAmazonAccount = require("../utils/user-login-util").matchSocketConnectionWithAmazonAccount;
 const removeUserFromCache = require("../utils/user-login-util").removeUserFromCache;
+const prepareClientResponse = require('./post').prepareClientResponse;
 
 exports.createSocketServer = function(server) {
   let io = require('socket.io').listen(server);
@@ -30,15 +31,14 @@ exports.createSocketServer = function(server) {
         removeUserFromCache(usr);
     })
     socket.on('alexaRes', (req, res) => {
-      //check req is acceptable
-        let usr = getUserBySocketId(socket.id)
-        if(usr != undefined){
-          alexaRes[usr._aid] = req
-          res("Message was sent to Alexa skill.")
-        }
-        else{
-          res("User is undefined.")
-        }
-    })
+      let usr = getUserBySocketId(socket.id)
+      if(usr != undefined){
+        prepareClientResponse(usr._aid, req);
+        res("Message was sent to Alexa skill.")
+      }
+      else{
+        res("User is undefined.")
+      }
+    });
   })
 }

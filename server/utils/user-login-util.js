@@ -29,8 +29,6 @@ class User{
   }
 }
 
-let alexaRes = {}
-let responseToAlexa = {}
 let clients = []
 
 exports.matchSocketConnectionWithAmazonAccount = function(usr, socket, room){
